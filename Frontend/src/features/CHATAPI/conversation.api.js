@@ -1,0 +1,27 @@
+import api from "../../utils/axios"
+
+export const createConversation=async()=>{
+    try {
+        const {data}=await api.get("/api/chat/create-conversation",)
+        return data
+    } catch (error) {
+        console.log("error occure during the api",error)
+    }
+}
+export const getConversations=async()=>{
+    try {
+        const {data}=await api.get("/api/chat/get-conversation")
+        return data
+    } catch (error) {
+        console.log(error)
+        return []
+    }
+}
+export const saveMessage=async(payload)=>{
+    try {
+        const {data}=await api.post("/api/chat/save",{payload})
+        return data
+    } catch (error) {
+        console.log(error)
+    }
+}
