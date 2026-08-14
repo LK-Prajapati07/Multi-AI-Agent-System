@@ -20,7 +20,7 @@ const Home = () => {
 
   const dispatch = useDispatch();
 
-  console.log("Redux user:", user);
+
 
   // Login API
   const loginHandle = async (token) => {
