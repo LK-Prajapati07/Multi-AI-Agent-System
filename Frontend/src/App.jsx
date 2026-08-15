@@ -14,7 +14,7 @@ const App = () => {
       // console.log(data)
 
       if (data) {
-        dispatch(setUser(data)); // response ke structure ke hisaab se
+        dispatch(setUser(data)); 
       }else {
         console.log("data not recieve")
       }

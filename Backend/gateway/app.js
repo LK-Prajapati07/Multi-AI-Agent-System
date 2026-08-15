@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import proxy from "express-http-proxy";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import morgan from "morgan";
 import { proxywithHeader } from "./middleware/proxyHeader.js";
 import { protect } from "../shared/protect.js";
 
@@ -16,6 +17,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(morgan("dev"))
 app.use(express.json());
 
 

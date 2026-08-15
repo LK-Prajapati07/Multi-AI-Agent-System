@@ -29,8 +29,7 @@ const Home = () => {
         token,
       });
 
-      console.log("Login response:", res.data);
-
+    
    
       dispatch(setUser(res.data.data));
     } catch (error) {
