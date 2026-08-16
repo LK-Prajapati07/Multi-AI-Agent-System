@@ -111,17 +111,31 @@ export const saveMessage = async (req, res) => {
         });
     }
 };
-export const getMessage=async(req,res)=>{
-    try {
-        const {conversationId}=req.body
-        const message=await Message.find({
-            conversationId
-        }).sort({
-            createdAt:-1
-        })
-    } catch (error) {
-        return res.status(500).json({
-            message:error.message
-        })
+export const getMessage = async (req, res) => {
+  try {
+    const { conversationId } = req.query;
+
+    if (!conversationId) {
+      return res.status(400).json({
+        success: false,
+        message: "Conversation ID is required",
+      });
     }
-}
+
+    const messages = await Message.find({
+      conversationId,
+    })
+
+    return res.status(200).json({
+      success: true,
+      data: messages,
+      message: "Messages fetched successfully",
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

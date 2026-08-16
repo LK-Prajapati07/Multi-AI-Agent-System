@@ -1,6 +1,6 @@
-import { Graph } from '@langchain/core/runnables/graph'
 import axios from 'axios'
 import dotenv from 'dotenv'
+import graph from '../graph/graph.js'
 dotenv.config()
 export const agent=async(req,res)=>{
     try {
@@ -8,11 +8,16 @@ export const agent=async(req,res)=>{
         await axios.post(`${process.env.CHAT_SERVICE}/save`,{
             conversationId, role:"user",content:prompt
         })
-        const result=await Graph.invoke({
+        const result=await graph.invoke({
             prompt,
             conversationId
         })
+
+        // console.log(result)
        const responce= result.aiResponse
+        await axios.post(`${process.env.CHAT_SERVICE}/save`,{
+            conversationId, role:"assistant",content:responce
+        })
        return res.status(200).json({
         data:responce,
         success:true,

@@ -29,6 +29,7 @@ const Sidebar = () => {
   const { conversation, selectedConversation } = useSelector(
     (state) => state.conversation
   );
+  // console.log(conversation)
 
   const { user } = useSelector((state) => state.user);
 
@@ -58,10 +59,7 @@ const Sidebar = () => {
   const handleCreateConversation = async () => {
     try {
       const data = await createConversation();
-
-      console.log("Created conversation:", data);
-
-      dispatch(addConverastion(data));
+     dispatch(addConverastion(data));
       dispatch(setSelectedConversations(data));
     } catch (error) {
       console.error("Create conversation failed:", error);
@@ -76,7 +74,7 @@ const Sidebar = () => {
       try {
         const { data } = await getConversations();
 
-        console.log("Conversations:", data);
+        // console.log("Conversations:", data);
 
         dispatch(setConversation(data));
       } catch (error) {

@@ -2,7 +2,7 @@ import api from "../utils/axios"
 
 const getCurrentUser=async()=>{
     try {
-        const {data}=await api.get("/api/auth/me")
+        const data=await api.get("/api/auth/me")
        
         return data
     } catch (error) {

@@ -3,7 +3,7 @@ import { getModel } from "../utils/model.js";
 
 export const routes = async (state) => {
   try {
-    const llm = getModel("router");
+    const llm = getModel("chat");
 
     const prompt = `
 You are an AI Router.
@@ -70,7 +70,7 @@ image
 
     const response = await llm.invoke([
       new SystemMessage(prompt),
-      new HumanMessage(state.message),
+      new HumanMessage(state.prompt),
     ]);
 
     return {

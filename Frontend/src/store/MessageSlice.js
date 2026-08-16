@@ -1,26 +1,31 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    Message: []
-    
+  Message: [],
 };
 
-const MessageSlice = createSlice({
-    name: "MessageSlice",
-    initialState,
+const messageSlice = createSlice({
+  name: "message",
+  initialState,
+  reducers: {
+    setMessage: (state, action) => {
+      state.Message = action.payload;
+    },
 
-    reducers: {
-        setMessage: (state, action) => {
-            state.Message = action.payload;
-        },
+    addMessage: (state, action) => {
+      state.Message.push(action.payload);
+    },
 
-      
-    }
+    clearMessage: (state) => {
+      state.Message = [];
+    },
+  },
 });
 
 export const {
-    setMessage,
+  setMessage,
+  addMessage,
+  clearMessage,
+} = messageSlice.actions;
 
-} = MessageSlice.actions;
-
-export default MessageSlice.reducer;
+export default messageSlice.reducer;

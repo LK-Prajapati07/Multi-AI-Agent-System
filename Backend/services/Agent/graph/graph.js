@@ -1,15 +1,15 @@
 import { StateGraph } from "@langchain/langgraph";
 import { agentState } from "./state.js";
 import { routes } from "./routes.js";
-import { chatAgent } from "../agents/chat.agents";
-import { searchAgent } from "../agents/search.agents";
-import { pdfAgent } from "../agents/pdf.agents";
-import { codingAgent } from "../agents/coding.agents";
-import { pptAgent } from "../agents/ppt.agents";
+import { chatAgent } from "../agents/chat.agents.js";
+import { searchAgent } from "../agents/search.agents.js";
+import { pdfAgent } from "../agents/pdf.agents.js";
+import { codingAgent } from "../agents/coding.agents.js";
+import { pptAgent } from "../agents/ppt.agents.js";
 import { visionAgent } from "../agents/vision.agent.js";
 
 const workFlow=new StateGraph(agentState)
-workFlow.nodes("router",routes)
+workFlow.addNode("router",routes)
 workFlow.addNode("chat",chatAgent)
 workFlow.addNode("search",searchAgent)
 workFlow.addNode("pdf",pdfAgent)
@@ -54,3 +54,4 @@ workFlow.addEdge("ppt","__end__")
 workFlow.addEdge("vision","__end__")
 
 const graph=workFlow.compile()
+export default graph

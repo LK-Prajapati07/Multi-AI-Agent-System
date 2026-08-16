@@ -25,3 +25,15 @@ export const saveMessage=async(payload)=>{
         console.log(error)
     }
 }
+export const getMessage = async (conversationId) => {
+  try {
+    const { data } = await api.get(
+      `/api/chat/message?conversationId=${conversationId}`
+    );
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    throw error;
+  }
+};
