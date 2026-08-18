@@ -37,3 +37,13 @@ export const getMessage = async (conversationId) => {
     throw error;
   }
 };
+
+export const updateConversationTitle = async (payload) => {
+  try {
+    const { data } = await api.put("/api/chat/update", payload);
+    return data;
+  } catch (error) {
+    console.error("Error updating conversation title:", error);
+    throw error;
+  }
+};

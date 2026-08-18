@@ -3,7 +3,13 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import callAgent from "../features/agent";
+import {
+  createConversation,
+  updateConversationTitle,
+} from "../features/CHATAPI/conversation.api";
+
 import { addMessage } from "../store/MessageSlice";
+import { setSelectedConversations } from "../store/conversation";
 
 const ChatInput = () => {
   const { selectedConversation } = useSelector(
@@ -16,12 +22,50 @@ const ChatInput = () => {
   const handleSendMessage = async () => {
     const prompt = value.trim();
 
-    if (!prompt || !selectedConversation?._id) return;
-
-    const conversationId = selectedConversation._id;
+    if (!prompt) return;
 
     try {
-      // Add user message immediately to Redux
+      let conversation = selectedConversation;
+
+      // Create conversation if none is selected
+      if (!conversation?._id) {
+        const response = await createConversation();
+
+        conversation = response.data;
+
+        if (!conversation?._id) {
+          console.error("Conversation creation failed:", response);
+          return;
+        }
+
+        dispatch(setSelectedConversations(conversation));
+      }
+
+      const conversationId = conversation._id;
+
+      // Update title only for new conversation
+      if (conversation.title === "new Chat") {
+        try {
+          const response = await updateConversationTitle({
+            id: conversationId,
+            title: prompt,
+          });
+
+          // Don't deselect conversation if update fails
+          if (response?.data) {
+            conversation = response.data;
+
+            dispatch(setSelectedConversations(conversation));
+          }
+        } catch (error) {
+          console.error(
+            "Title update failed:",
+            error.response?.data || error.message
+          );
+        }
+      }
+
+      // Add user message immediately
       dispatch(
         addMessage({
           conversationId,
@@ -30,10 +74,10 @@ const ChatInput = () => {
         })
       );
 
-      // Clear input immediately
+      // Clear input
       setValue("");
 
-      // Call AI Agent
+      // Call AI agent
       const response = await callAgent({
         prompt,
         conversationId,
@@ -42,11 +86,11 @@ const ChatInput = () => {
       console.log("AI response:", response);
 
       if (!response?.success) {
-        console.error("AI response failed");
+        console.error("AI response failed:", response);
         return;
       }
 
-      // Add AI message to Redux
+      // Add AI response
       dispatch(
         addMessage({
           conversationId,
@@ -55,7 +99,10 @@ const ChatInput = () => {
         })
       );
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error(
+        "Error sending message:",
+        error.response?.data || error.message
+      );
     }
   };
 

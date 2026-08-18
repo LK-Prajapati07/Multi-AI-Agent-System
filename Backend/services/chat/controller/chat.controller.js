@@ -59,33 +59,48 @@ export const getConversations = async (req, res) => {
     }
 };
 export const updateConversation = async (req, res) => {
-    try {
-        const {id,title} = req.body;
+  try {
+    const { id, title } = req.body;
+    const userId = req.headers["x-user-id"];
 
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                message: "Unauthorized"
-            });
-        }
-
-        const conversations = await Conversation.findByIdAndUpdate(
-            userId,
-            {title}
-        ).sort({ updatedAt: -1 });
-
-        return res.status(200).json({
-            success: true,
-            message: "Conversations update successfully",
-            data: conversations
-        });
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
     }
+
+    const conversation = await Conversation.findOneAndUpdate(
+      {
+        _id: id,
+        userId: userId,
+      },
+      {
+        title,
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        message: "Conversation not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Conversation updated successfully",
+      data: conversation,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 export const saveMessage = async (req, res) => {
