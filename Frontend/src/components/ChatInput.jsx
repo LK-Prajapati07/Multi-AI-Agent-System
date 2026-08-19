@@ -1,4 +1,15 @@
-import { Mic, Paperclip, Send } from "lucide-react";
+import {
+  Code2,
+  FileText,
+  Globe,
+  ImageIcon,
+  MessageSquare,
+  Mic,
+  Paperclip,
+  Presentation,
+  Send,
+  Zap,
+} from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -17,7 +28,47 @@ const ChatInput = () => {
   );
 
   const dispatch = useDispatch();
+
   const [value, setValue] = useState("");
+  const [selectedAgent, setSelectedAgent] = useState("auto");
+
+  const agents = [
+    {
+      id: "auto",
+      icon: Zap,
+      label: "Auto",
+    },
+    {
+      id: "chat",
+      icon: MessageSquare,
+      label: "Chat",
+    },
+    {
+      id: "coding",
+      icon: Code2,
+      label: "Coding",
+    },
+    {
+      id: "ppt",
+      icon: Presentation,
+      label: "PPT",
+    },
+    {
+      id: "image",
+      icon: ImageIcon,
+      label: "Image",
+    },
+    {
+      id: "pdf",
+      icon: FileText,
+      label: "PDF",
+    },
+    {
+      id: "search",
+      icon: Globe,
+      label: "Search",
+    },
+  ];
 
   const handleSendMessage = async () => {
     const prompt = value.trim();
@@ -27,11 +78,11 @@ const ChatInput = () => {
     try {
       let conversation = selectedConversation;
 
-      // Create conversation if none is selected
+      // Create conversation if none exists
       if (!conversation?._id) {
         const response = await createConversation();
 
-        conversation = response.data;
+        conversation = response?.data;
 
         if (!conversation?._id) {
           console.error("Conversation creation failed:", response);
@@ -43,7 +94,7 @@ const ChatInput = () => {
 
       const conversationId = conversation._id;
 
-      // Update title only for new conversation
+      // Update title for new conversation
       if (conversation.title === "new Chat") {
         try {
           const response = await updateConversationTitle({
@@ -51,7 +102,6 @@ const ChatInput = () => {
             title: prompt,
           });
 
-          // Don't deselect conversation if update fails
           if (response?.data) {
             conversation = response.data;
 
@@ -65,7 +115,7 @@ const ChatInput = () => {
         }
       }
 
-      // Add user message immediately
+      // Add user message
       dispatch(
         addMessage({
           conversationId,
@@ -77,10 +127,11 @@ const ChatInput = () => {
       // Clear input
       setValue("");
 
-      // Call AI agent
+      // Call selected agent
       const response = await callAgent({
         prompt,
         conversationId,
+        agent: selectedAgent,
       });
 
       console.log("AI response:", response);
@@ -90,7 +141,7 @@ const ChatInput = () => {
         return;
       }
 
-      // Add AI response
+      // Add assistant response
       dispatch(
         addMessage({
           conversationId,
@@ -108,10 +159,60 @@ const ChatInput = () => {
 
   return (
     <div className="w-full overflow-hidden px-3 md:px-5 py-3 border-t border-white/10 bg-[#010208]">
-      <div className="flex flex-col gap-1.5 max-w-4xl mx-auto bg-[#080b14] border border-white/10 rounded-2xl px-4 pt-3 pb-2.5">
+      
+      {/* Agent Selector */}
+      <div className="max-w-4xl mx-auto mb-2 flex gap-2 overflow-x-auto scrollbar-none">
+        {agents.map((agent) => {
+          const Icon = agent.icon;
+          const isActive = selectedAgent === agent.id;
+
+          return (
+            <button
+              key={agent.id}
+              type="button"
+              onClick={() => setSelectedAgent(agent.id)}
+              className={`
+                flex items-center gap-1.5
+                px-3 py-1.5
+                rounded-lg
+                text-xs
+                whitespace-nowrap
+                border
+                transition-all
+                ${
+                  isActive
+                    ? "bg-white/10 border-white/20 text-white"
+                    : "bg-transparent border-transparent text-slate-500 hover:bg-white/5 hover:text-slate-300"
+                }
+              `}
+            >
+              <Icon size={14} />
+              <span>{agent.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Chat Input */}
+      <div
+        className="
+          flex flex-col gap-1.5
+          max-w-4xl mx-auto
+          bg-[#080b14]
+          border border-white/10
+          rounded-2xl
+          px-4 pt-3 pb-2.5
+        "
+      >
         <textarea
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
           placeholder="Ask Anything ..."
           rows={2}
           className="
@@ -129,6 +230,8 @@ const ChatInput = () => {
         />
 
         <div className="flex items-center justify-between">
+          
+          {/* Left Actions */}
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -161,6 +264,7 @@ const ChatInput = () => {
             </button>
           </div>
 
+          {/* Send */}
           <button
             type="button"
             onClick={handleSendMessage}

@@ -3,7 +3,13 @@ import { getModel } from "../utils/model.js";
 
 export const routes = async (state) => {
   try {
-    const llm = getModel("chat");
+    if(state.agent && state.agent!=='auto'){
+      return {
+        ...state,
+        agent:state.agent
+      }
+    }
+    const llm = getModel("router");
 
     const prompt = `
 You are an AI Router.

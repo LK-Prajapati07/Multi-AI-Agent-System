@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatMistralAI } from "@langchain/mistralai";
 import { ChatGroq } from "@langchain/groq";
+import { ChatOpenAI } from "@langchain/openai";
 
 dotenv.config();
 
@@ -33,6 +34,11 @@ const searchModel = new ChatMistralAI({
   temperature: 0.8,
   apiKey: process.env.MISTRAL_API_KEY,
 });
+const router = new ChatOpenAI({
+  model: "gpt-5.5",
+  temperature: 0,
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export function getModel(agent) {
   switch (agent) {
@@ -53,6 +59,8 @@ export function getModel(agent) {
 
     case "ppt":
       return searchModel;
+    case 'router':
+      return router
 
     default:
       throw new Error(`Unknown agent: ${agent}`);

@@ -19,7 +19,7 @@ workFlow.addNode("vision",visionAgent)
 
 workFlow.addEdge("__start__","router")
 workFlow.addConditionalEdges("router",(state)=>{
-    switch(state.agent){
+    switch(state.agent){ 
         case "chat":
             return "chat"
         case "search":

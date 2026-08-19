@@ -32,7 +32,7 @@ const Sidebar = () => {
   // console.log(conversation)
 
   const { user } = useSelector((state) => state.user);
-
+  console.log(user.data.avatar)
   const sidebarRef = useRef(null);
   const buttonRef = useRef(null);
 
@@ -284,19 +284,19 @@ const Sidebar = () => {
           <div className="flex items-center gap-3 rounded-xl p-2">
             {/* Avatar */}
             <img
-              src={user.avatar || user.profilePhoto}
-              alt={user.name}
+              src={user.data.avatar}
+              alt={user.data.name}
               className="h-9 w-9 shrink-0 rounded-full object-cover"
             />
 
             {/* User Information */}
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                {user.name}
+                {user.data.name}
               </p>
 
               <p className="truncate text-xs text-gray-400">
-                {user.email}
+                {user.data.email}
               </p>
             </div>
 
