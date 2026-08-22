@@ -81,7 +81,7 @@ const CosmicHome = () => {
     const controls = globeRef.current.controls();
 
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 20;
+    controls.autoRotateSpeed = 10;
 
     controls.enableZoom = false;
     controls.enablePan = false;

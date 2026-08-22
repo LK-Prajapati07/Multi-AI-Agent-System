@@ -1,4 +1,21 @@
+import { PanelRight } from "lucide-react";
+import { useState } from "react";
+
 const Artifact = () => {
+  const [hideartifact,setHideArtifacr]=useState(false)
+if (hideartifact) {
+  return (
+    <div className="flex h-full w-8 shrink-0 items-center justify-start border-l border-white/10 bg-[#05070d]">
+      <button
+        className="text-white/50 transition hover:text-white"
+        onClick={() => setHideArtifacr(false)}
+        title="Open Artifact"
+      >
+        <PanelRight size={18} />
+      </button>
+    </div>
+  );
+}
   return (
     <aside
       className="
@@ -21,7 +38,7 @@ const Artifact = () => {
           </span>
         </div>
 
-        <button className="text-xs text-white/40 transition hover:text-white">
+        <button className="text-xs text-white/40 transition hover:text-white" onClick={()=>setHideArtifacr(true)}>
           Close
         </button>
       </div>

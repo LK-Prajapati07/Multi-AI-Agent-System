@@ -46,7 +46,7 @@ export function getModel(agent) {
       return chatModel;
 
     case "coding":
-      return codingModel;
+      return searchModel;
 
     case "vision":
       return visionModel;
@@ -63,6 +63,6 @@ export function getModel(agent) {
       return router
 
     default:
-      throw new Error(`Unknown agent: ${agent}`);
+      return searchModel
   }
 }

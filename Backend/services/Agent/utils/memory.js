@@ -61,11 +61,11 @@ export const addMessage = async (
   content
 ) => {
   try {
-    if (!content) {
-      throw new Error(
-        "Cannot store empty message content"
-      );
-    }
+    // if (!content) {
+    //   throw new Error(
+    //     "Cannot store empty message content"
+    //   );
+    // }
 
     const key = getMemoryKey(conversationId);
 

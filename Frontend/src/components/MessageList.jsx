@@ -26,7 +26,7 @@ const MessageList = () => {
               key={i}
               className="text-slate-200"
             >
-            <MessageBubble role={msg?.role} content={msg?.content}/>
+            <MessageBubble role={msg?.role} content={msg?.content} />
             </div>
           ))}
         </div>

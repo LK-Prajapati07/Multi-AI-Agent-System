@@ -8,7 +8,7 @@ dotenv.config();
 
 export const agent = async (req, res) => {
   try {
-    const { prompt, conversationId ,agent} = req.body;
+    const { prompt, conversationId, agent } = req.body;
 
     // Validate request
     if (!prompt?.trim() || !conversationId) {
@@ -19,11 +19,7 @@ export const agent = async (req, res) => {
     }
 
     // 1. Add user message to Redis memory
-    await addMessage(
-      conversationId,
-      "user",
-      prompt
-    );
+    await addMessage(conversationId, "user", prompt);
 
     // 2. Persist user message
     await axios.post(`${process.env.CHAT_SERVICE}/save`, {
@@ -36,26 +32,20 @@ export const agent = async (req, res) => {
     const result = await graph.invoke({
       prompt,
       conversationId,
-      agent
+      agent,
     });
 
     console.log("Graph result:", result);
 
     // 4. Validate AI response
-    if (!result?.aiResponse) {
-      throw new Error(
-        result?.error || "AI response is empty"
-      );
-    }
+    // if (!result?.aiResponse) {
+    //   throw new Error(result?.error || "AI response is empty");
+    // }
 
     const response = result.aiResponse;
 
     // 5. Add AI response to Redis
-    await addMessage(
-      conversationId,
-      "assistant",
-      response
-    );
+    await addMessage(conversationId, "assistant", response);
 
     // 6. Persist AI response
     await axios.post(`${process.env.CHAT_SERVICE}/save`, {
@@ -68,9 +58,10 @@ export const agent = async (req, res) => {
     return res.status(200).json({
       success: true,
       data: response,
+      images: result.images ?? [],
+      sources: result.searchResult?.results ?? [],
       message: "Agent Service working now",
     });
-
   } catch (error) {
     console.error("========== AGENT ERROR ==========");
     console.error("Message:", error.message);

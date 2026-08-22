@@ -24,6 +24,7 @@ import Logout from "../features/UserAPI/user";
 import { setUser } from "../store/createSlice";
 
 const Sidebar = () => {
+  
   const dispatch = useDispatch();
 
   const { conversation, selectedConversation } = useSelector(
@@ -32,7 +33,7 @@ const Sidebar = () => {
   // console.log(conversation)
 
   const { user } = useSelector((state) => state.user);
-  console.log(user.data.avatar)
+  // console.log(user.data.avatar)
   const sidebarRef = useRef(null);
   const buttonRef = useRef(null);
 
@@ -42,6 +43,7 @@ const Sidebar = () => {
   // Logout
   // =========================
   const handleLogout = async () => {
+   
     try {
       const data = await Logout();
 
@@ -52,10 +54,6 @@ const Sidebar = () => {
       console.error("Logout failed:", error);
     }
   };
-
-  // =========================
-  // Create Conversation
-  // =========================
   const handleCreateConversation = async () => {
     try {
       const data = await createConversation();
@@ -66,9 +64,7 @@ const Sidebar = () => {
     }
   };
 
-  // =========================
-  // Get Conversations
-  // =========================
+
   useEffect(() => {
     const fetchConversations = async () => {
       try {
@@ -181,7 +177,7 @@ const Sidebar = () => {
 
           <div>
             <p className="text-sm font-semibold text-gray-900 dark:text-white">
-              Agenis AI
+              Multi AI AGENT
             </p>
 
             <p className="text-xs text-gray-400">
@@ -248,6 +244,7 @@ const Sidebar = () => {
                 {/* Content */}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
+                    {console.log(conv.title)}
                     {conv.title || "New Conversation"}
                   </p>
 
