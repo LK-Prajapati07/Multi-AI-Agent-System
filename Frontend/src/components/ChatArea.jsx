@@ -6,29 +6,49 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { getMessage } from "../features/CHATAPI/conversation.api";
-import { setMessage } from "../store/MessageSlice";
+import { addArtifact, setMessage } from "../store/MessageSlice";
 
 const ChatArea = () => {
-  const { selectedConversation } = useSelector(
-    (state) => state.conversation
+  const selectedConversation = useSelector(
+    (state) => state.conversation.selectedConversation
   );
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (!selectedConversation?._id) {
-        return;
-      }
+    if (!selectedConversation?._id) return;
 
+    const fetchMessages = async () => {
       try {
-        const response = await getMessage(
-          selectedConversation._id
+        const response = await getMessage(selectedConversation._id);
+
+        const messages = response.data || [];
+
+        // Get all artifacts from all messages
+        const artifacts = messages.flatMap(
+          (message) => message.artifacts || []
         );
 
-        console.log("Messages from API:", response.data);
+        // Get the latest message that contains artifacts
+        const latestArtifactMessage = [...messages]
+          .reverse()
+          .find(
+            (message) =>
+              Array.isArray(message.artifacts) &&
+              message.artifacts.length > 0
+          );
 
-        dispatch(setMessage(response.data));
+        console.log("Messages:", messages);
+        console.log("Artifacts:", artifacts);
+        console.log("Latest Artifact Message:", latestArtifactMessage);
+
+        // Store messages in Redux
+        dispatch(setMessage(messages));
+
+        // Store artifacts in Redux
+        if (artifacts.length > 0) {
+          dispatch(addArtifact(artifacts));
+        }
       } catch (error) {
         console.error("Failed to fetch messages:", error);
       }
@@ -38,9 +58,7 @@ const ChatArea = () => {
   }, [selectedConversation?._id, dispatch]);
 
   return (
-
-    <div className="flex-1 flex flex-col bg-[#03040a] ">
-      
+    <div className="flex flex-1 flex-col bg-[#03040a]">
       <Navbar />
       <MessageList />
       <ChatInput />

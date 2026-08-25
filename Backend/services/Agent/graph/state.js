@@ -1,6 +1,7 @@
 import { Annotation } from "@langchain/langgraph";
 
 export const agentState = Annotation.Root({
+
   prompt: Annotation({
     default: () => "",
   }),
@@ -22,8 +23,8 @@ export const agentState = Annotation.Root({
   images: Annotation({
     default: () => [],
   }),
-  artificat:Annotation({
-    default:()=>null
-  })
 
+  artifacts: Annotation({
+    default: () => [],
+  }),
 });

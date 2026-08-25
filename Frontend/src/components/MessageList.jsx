@@ -21,12 +21,17 @@ const MessageList = () => {
         </div>
       ) : (
         <div className="h-full overflow-y-auto px-6 py-6 space-y-5">
-          {Message.map((msg,i) => (
+          {Message.map((msg, i) => (
             <div
               key={i}
               className="text-slate-200"
             >
-            <MessageBubble role={msg?.role} content={msg?.content} />
+              <MessageBubble
+                role={msg?.role}
+                content={msg?.content}
+                artifacts={msg?.artifacts ?? []}
+                images={msg?.images ?? []}
+              />
             </div>
           ))}
         </div>

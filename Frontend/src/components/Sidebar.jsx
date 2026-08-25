@@ -30,10 +30,9 @@ const Sidebar = () => {
   const { conversation, selectedConversation } = useSelector(
     (state) => state.conversation
   );
-  // console.log(conversation)
+
 
   const { user } = useSelector((state) => state.user);
-  // console.log(user.data.avatar)
   const sidebarRef = useRef(null);
   const buttonRef = useRef(null);
 
@@ -45,9 +44,8 @@ const Sidebar = () => {
   const handleLogout = async () => {
    
     try {
-      const data = await Logout();
+     await Logout();
 
-      console.log("Logout:", data);
 
       dispatch(setUser(null));
     } catch (error) {
@@ -70,7 +68,6 @@ const Sidebar = () => {
       try {
         const { data } = await getConversations();
 
-        // console.log("Conversations:", data);
 
         dispatch(setConversation(data));
       } catch (error) {
@@ -244,7 +241,7 @@ const Sidebar = () => {
                 {/* Content */}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
-                    {console.log(conv.title)}
+                    
                     {conv.title || "New Conversation"}
                   </p>
 

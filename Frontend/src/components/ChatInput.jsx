@@ -19,66 +19,41 @@ import {
   updateConversationTitle,
 } from "../features/CHATAPI/conversation.api";
 
-import { addMessage } from "../store/MessageSlice";
+import { addArtifact, addMessage } from "../store/MessageSlice";
 import { setSelectedConversations } from "../store/conversation";
 
 const ChatInput = () => {
   const { selectedConversation } = useSelector(
     (state) => state.conversation
   );
+  const {artifact}=useSelector((state)=>state.message)
 
   const dispatch = useDispatch();
 
   const [value, setValue] = useState("");
   const [selectedAgent, setSelectedAgent] = useState("auto");
+  const [isSending, setIsSending] = useState(false);
 
   const agents = [
-    {
-      id: "auto",
-      icon: Zap,
-      label: "Auto",
-    },
-    {
-      id: "chat",
-      icon: MessageSquare,
-      label: "Chat",
-    },
-    {
-      id: "coding",
-      icon: Code2,
-      label: "Coding",
-    },
-    {
-      id: "ppt",
-      icon: Presentation,
-      label: "PPT",
-    },
-    {
-      id: "image",
-      icon: ImageIcon,
-      label: "Image",
-    },
-    {
-      id: "pdf",
-      icon: FileText,
-      label: "PDF",
-    },
-    {
-      id: "search",
-      icon: Globe,
-      label: "Search",
-    },
+    { id: "auto", icon: Zap, label: "Auto" },
+    { id: "chat", icon: MessageSquare, label: "Chat" },
+    { id: "coding", icon: Code2, label: "Coding" },
+    { id: "ppt", icon: Presentation, label: "PPT" },
+    { id: "image", icon: ImageIcon, label: "Image" },
+    { id: "pdf", icon: FileText, label: "PDF" },
+    { id: "search", icon: Globe, label: "Search" },
   ];
 
   const handleSendMessage = async () => {
     const prompt = value.trim();
 
-    if (!prompt) return;
+    if (!prompt || isSending) return;
+
+    setIsSending(true);
 
     try {
       let conversation = selectedConversation;
 
-      // Create conversation if none exists
       if (!conversation?._id) {
         const response = await createConversation();
 
@@ -94,7 +69,6 @@ const ChatInput = () => {
 
       const conversationId = conversation._id;
 
-      // Update title for new conversation
       if (conversation.title === "new Chat") {
         try {
           const response = await updateConversationTitle({
@@ -104,7 +78,6 @@ const ChatInput = () => {
 
           if (response?.data) {
             conversation = response.data;
-
             dispatch(setSelectedConversations(conversation));
           }
         } catch (error) {
@@ -115,38 +88,48 @@ const ChatInput = () => {
         }
       }
 
-      // Add user message
       dispatch(
         addMessage({
           conversationId,
           role: "user",
           content: prompt,
+          artifacts: [],
+          images: [],
         })
       );
 
-      // Clear input
       setValue("");
 
-      // Call selected agent
       const response = await callAgent({
         prompt,
         conversationId,
         agent: selectedAgent,
       });
 
-      console.log("AI response:", response);
-
       if (!response?.success) {
         console.error("AI response failed:", response);
         return;
       }
 
-      // Add assistant response
+      const aiResponse = response.data ?? "";
+      const artifacts = Array.isArray(response.artifacts)
+        ? response.artifacts
+        : [];
+      const images = Array.isArray(response.images)
+        ? response.images
+        : [];
+      dispatch(addArtifact(artifact))
+      console.log("AI Response:", aiResponse);
+      console.log("Artifacts:", artifacts);
+      console.log("Images:", images);
+
       dispatch(
         addMessage({
           conversationId,
           role: "assistant",
-          content: response.data,
+          content: aiResponse,
+          artifacts,
+          images,
         })
       );
     } catch (error) {
@@ -154,13 +137,13 @@ const ChatInput = () => {
         "Error sending message:",
         error.response?.data || error.message
       );
+    } finally {
+      setIsSending(false);
     }
   };
 
   return (
     <div className="w-full overflow-hidden px-3 md:px-5 py-3 border-t border-white/10 bg-[#010208]">
-      
-      {/* Agent Selector */}
       <div className="max-w-4xl mx-auto mb-2 flex gap-2 overflow-x-auto scrollbar-none">
         {agents.map((agent) => {
           const Icon = agent.icon;
@@ -193,17 +176,7 @@ const ChatInput = () => {
         })}
       </div>
 
-      {/* Chat Input */}
-      <div
-        className="
-          flex flex-col gap-1.5
-          max-w-4xl mx-auto
-          bg-[#080b14]
-          border border-white/10
-          rounded-2xl
-          px-4 pt-3 pb-2.5
-        "
-      >
+      <div className="flex flex-col gap-1.5 max-w-4xl mx-auto bg-[#080b14] border border-white/10 rounded-2xl px-4 pt-3 pb-2.5">
         <textarea
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -215,6 +188,7 @@ const ChatInput = () => {
           }}
           placeholder="Ask Anything ..."
           rows={2}
+          disabled={isSending}
           className="
             w-full
             bg-transparent
@@ -230,8 +204,6 @@ const ChatInput = () => {
         />
 
         <div className="flex items-center justify-between">
-          
-          {/* Left Actions */}
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -264,11 +236,10 @@ const ChatInput = () => {
             </button>
           </div>
 
-          {/* Send */}
           <button
             type="button"
             onClick={handleSendMessage}
-            disabled={!value.trim()}
+            disabled={!value.trim() || isSending}
             className="
               flex items-center justify-center
               w-9 h-9

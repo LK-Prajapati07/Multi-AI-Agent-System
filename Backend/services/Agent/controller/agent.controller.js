@@ -8,69 +8,176 @@ dotenv.config();
 
 export const agent = async (req, res) => {
   try {
-    const { prompt, conversationId, agent } = req.body;
+    // ==========================================
+    // 1. Request data
+    // ==========================================
 
-    // Validate request
-    if (!prompt?.trim() || !conversationId) {
+    const {
+      prompt,
+      conversationId,
+      agent: agentType,
+    } = req.body;
+
+    // ==========================================
+    // 2. Validate request
+    // ==========================================
+
+    if (!prompt?.trim()) {
       return res.status(400).json({
         success: false,
-        message: "prompt and conversationId are required",
+        message: "Prompt is required",
       });
     }
 
-    // 1. Add user message to Redis memory
-    await addMessage(conversationId, "user", prompt);
+    if (!conversationId) {
+      return res.status(400).json({
+        success: false,
+        message: "ConversationId is required",
+      });
+    }
 
-    // 2. Persist user message
-    await axios.post(`${process.env.CHAT_SERVICE}/save`, {
+    // ==========================================
+    // 3. Save user message to Redis
+    // ==========================================
+
+    await addMessage(
       conversationId,
-      role: "user",
-      content: prompt,
-    });
+      "user",
+      prompt
+    );
 
-    // 3. Run AI agent
+    // ==========================================
+    // 4. Save user message to Chat Service
+    // ==========================================
+
+    await axios.post(
+      `${process.env.CHAT_SERVICE}/save`,
+      {
+        conversationId,
+        role: "user",
+        content: prompt,
+      }
+    );
+
+    // ==========================================
+    // 5. Run LangGraph
+    // ==========================================
+
+    console.log("========== GRAPH START ==========");
+
     const result = await graph.invoke({
       prompt,
       conversationId,
-      agent,
+      agent: agentType,
     });
 
-    console.log("Graph result:", result);
+    console.log("========== GRAPH RESULT ==========");
+    console.log("Intent:", result?.intent);
+    console.log("AI Response:", result?.aiResponse);
+    console.log("Artifacts:", result?.artifacts);
+    console.log("Images:", result?.images);
+    console.log("==================================");
 
-    // 4. Validate AI response
-    // if (!result?.aiResponse) {
-    //   throw new Error(result?.error || "AI response is empty");
-    // }
+    // ==========================================
+    // 6. Validate AI response
+    // ==========================================
+
+    if (!result?.aiResponse) {
+      throw new Error(
+        result?.error || "AI response is empty"
+      );
+    }
 
     const response = result.aiResponse;
 
-    // 5. Add AI response to Redis
-    await addMessage(conversationId, "assistant", response);
+    // ==========================================
+    // 7. Normalize artifacts
+    // ==========================================
 
-    // 6. Persist AI response
-    await axios.post(`${process.env.CHAT_SERVICE}/save`, {
+    const artifacts = Array.isArray(result?.artifacts)
+      ? result.artifacts
+      : [];
+
+    // ==========================================
+    // 8. Normalize images
+    // ==========================================
+
+    const images = Array.isArray(result?.images)
+      ? result.images
+      : [];
+
+    // ==========================================
+    // 9. Save AI response to Redis
+    // ==========================================
+
+    await addMessage(
       conversationId,
-      role: "assistant",
-      content: response,
-    });
+      "assistant",
+      response
+    );
 
-    // 7. Send response
+    // ==========================================
+    // 10. Save AI response to Chat Service
+    // ==========================================
+
+    await axios.post(
+      `${process.env.CHAT_SERVICE}/save`,
+      {
+        conversationId,
+        role: "assistant",
+        content: response,
+        artifacts,
+        images,
+      }
+    );
+
+    // ==========================================
+    // 11. Send response to frontend
+    // ==========================================
+
     return res.status(200).json({
       success: true,
+
       data: response,
-      images: result.images ?? [],
-      sources: result.searchResult?.results ?? [],
+
+      artifacts,
+
+      images,
+
+      sources:
+        result?.searchResult?.results ?? [],
+
       message: "Agent Service working now",
     });
+
   } catch (error) {
-    console.error("========== AGENT ERROR ==========");
-    console.error("Message:", error.message);
-    console.error("Stack:", error.stack);
-    console.error("=================================");
+
+    console.error(
+      "========== AGENT ERROR =========="
+    );
+
+    console.error(
+      "Message:",
+      error.message
+    );
+
+    console.error(
+      "Stack:",
+      error.stack
+    );
+
+    console.error(
+      "================================="
+    );
 
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message:
+        error.message ||
+        "Agent service failed",
+
+      artifacts: [],
+      images: [],
     });
   }
 };

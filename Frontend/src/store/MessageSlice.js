@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   Message: [],
+  artifact:[]
 };
 
 const messageSlice = createSlice({
@@ -19,12 +20,16 @@ const messageSlice = createSlice({
     clearMessage: (state) => {
       state.Message = [];
     },
+    addArtifact:(state,action)=>{
+      state.artifact.push(action.payload)
+    }
   },
 });
 
 export const {
   setMessage,
   addMessage,
+  addArtifact,
   clearMessage,
 } = messageSlice.actions;
 
