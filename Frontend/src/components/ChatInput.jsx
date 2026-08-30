@@ -119,9 +119,7 @@ const ChatInput = () => {
         ? response.images
         : [];
       dispatch(addArtifact(artifact))
-      console.log("AI Response:", aiResponse);
-      console.log("Artifacts:", artifacts);
-      console.log("Images:", images);
+    
 
       dispatch(
         addMessage({
