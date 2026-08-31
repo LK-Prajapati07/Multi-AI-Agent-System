@@ -15,7 +15,7 @@ const codingModel = new OpenAI({
 
 // Gemini (Vision)
 const visionModel = new ChatGoogleGenerativeAI({
-  model: "gemini-2.5-pro",
+  model: "gemini-3.1-flash-image",
   temperature: 0.8,
   apiKey: process.env.GOOGLE_API_KEY,
 });
@@ -46,10 +46,10 @@ export function getModel(agent) {
       return chatModel;
 
     case "coding":
-      return searchModel;
+      return chatModel;
 
     case "vision":
-      return visionModel;
+      return chatModel;
 
     case "search":
       return searchModel;

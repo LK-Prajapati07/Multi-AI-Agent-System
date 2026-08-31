@@ -8,7 +8,8 @@ import {
   Check,
   Code2,
   FileCode2,
-  
+  ImageIcon,
+  Download,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -40,15 +41,9 @@ const MessageBubble = ({
           }`}
         >
           {isUser ? (
-            <User
-              size={15}
-              className="text-indigo-300"
-            />
+            <User size={15} className="text-indigo-300" />
           ) : (
-            <Bot
-              size={15}
-              className="text-emerald-300"
-            />
+            <Bot size={15} className="text-emerald-300" />
           )}
         </div>
 
@@ -112,24 +107,14 @@ const MessageBubble = ({
                   <Markdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                      code({
-                        inline,
-                        className,
-                        children,
-                        ...props
-                      }) {
-                        const match =
-                          /language-(\w+)/.exec(
-                            className || ""
-                          );
+                      code({ inline, className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || "");
 
                         if (!inline && match) {
                           return (
                             <CodeBlock
                               language={match[1]}
-                              value={String(
-                                children
-                              ).replace(/\n$/, "")}
+                              value={String(children).replace(/\n$/, "")}
                             />
                           );
                         }
@@ -161,9 +146,7 @@ const MessageBubble = ({
                       ),
 
                       thead: ({ children }) => (
-                        <thead className="bg-white/10">
-                          {children}
-                        </thead>
+                        <thead className="bg-white/10">{children}</thead>
                       ),
 
                       th: ({ children }) => (
@@ -178,11 +161,7 @@ const MessageBubble = ({
                         </td>
                       ),
 
-                      pre: ({ children }) => (
-                        <div className="my-4">
-                          {children}
-                        </div>
-                      ),
+                      pre: ({ children }) => <div className="my-4">{children}</div>,
 
                       blockquote: ({ children }) => (
                         <blockquote className="border-l-4 border-white/30 pl-4 my-3 italic text-white/80">
@@ -190,14 +169,9 @@ const MessageBubble = ({
                         </blockquote>
                       ),
 
-                      hr: () => (
-                        <hr className="my-4 border-white/10" />
-                      ),
+                      hr: () => <hr className="my-4 border-white/10" />,
 
-                      a: ({
-                        children,
-                        href,
-                      }) => (
+                      a: ({ children, href }) => (
                         <a
                           href={href}
                           target="_blank"
@@ -218,11 +192,7 @@ const MessageBubble = ({
                   Generated Artifacts
               ===================================== */}
 
-              {artifacts.length > 0 && (
-                <ArtifactViewer
-                  artifacts={artifacts}
-                />
-              )}
+              {artifacts.length > 0 && <ArtifactViewer artifacts={artifacts} />}
             </>
           )}
         </div>
@@ -231,232 +201,210 @@ const MessageBubble = ({
   );
 };
 
-
 /* ==================================================
-   Artifact Viewer
+   Artifact Viewer (dispatches by artifact.type)
 ================================================== */
 
 const ArtifactViewer = ({ artifacts }) => {
-  const [selectedFile, setSelectedFile] =
-    useState(null);
-
-  const [showCode, setShowCode] =
-    useState(false);
-
   if (!artifacts?.length) {
     return null;
   }
 
   return (
     <div className="mt-4 space-y-3">
+      {artifacts.map((artifact, idx) => {
+        const key = artifact.id ?? artifact.filename ?? idx;
 
-      {artifacts.map((artifact) => (
-        <div
-          key={artifact.id}
-          className="
-            rounded-xl
-            overflow-hidden
-            border border-white/10
-            bg-black/20
-          "
-        >
-          {/* Artifact Header */}
+        if (artifact.type === "image") {
+          return <ImageArtifact key={key} artifact={artifact} />;
+        }
 
-          <div
-            className="
-              flex
-              items-center
-              justify-between
-              px-4
-              py-3
-              border-b
-              border-white/10
-              bg-black/20
-            "
-          >
-            <div className="flex items-center gap-2">
-              <Code2
-                size={17}
-                className="text-emerald-300"
-              />
-
-              <span className="text-sm font-medium">
-                {artifact.type}
-              </span>
-            </div>
-
-            <span className="text-xs text-white/50">
-              {artifact.files?.length ?? 0} files
-            </span>
-          </div>
-
-          {/* Files */}
-
-          <div className="p-2 space-y-1">
-            {artifact.files?.map((file) => {
-              const isSelected =
-                selectedFile?.name ===
-                file.name;
-
-              return (
-                <button
-                  key={file.name}
-                  type="button"
-                  onClick={() => {
-                    setSelectedFile(file);
-                    setShowCode(true);
-                  }}
-                  className={`
-                    w-full
-                    flex
-                    items-center
-                    gap-2
-                    px-3
-                    py-2
-                    rounded-lg
-                    text-left
-                    transition
-                    ${
-                      isSelected
-                        ? "bg-white/10 text-white"
-                        : "text-white/70 hover:bg-white/5 hover:text-white"
-                    }
-                  `}
-                >
-                  <FileCode2
-                    size={15}
-                    className="text-blue-300 shrink-0"
-                  />
-
-                  <span className="text-xs font-mono">
-                    {file.name}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Code Viewer */}
-
-          {showCode && selectedFile && (
-            <div className="border-t border-white/10">
-
-              {/* File Header */}
-
-              <div
-                className="
-                  flex
-                  items-center
-                  justify-between
-                  px-4
-                  py-2
-                  bg-black/30
-                "
-              >
-                <div className="flex items-center gap-2">
-                  <FileCode2
-                    size={15}
-                    className="text-blue-300"
-                  />
-
-                  <span className="text-xs font-mono">
-                    {selectedFile.name}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowCode(false)
-                  }
-                  className="
-                    text-xs
-                    text-white/50
-                    hover:text-white
-                  "
-                >
-                  Close
-                </button>
-              </div>
-
-              {/* Code */}
-
-              <ArtifactCode
-                file={selectedFile}
-              />
-            </div>
-          )}
-        </div>
-      ))}
+        // default: treat as a code/project artifact (has `files`)
+        return <ProjectArtifact key={key} artifact={artifact} />;
+      })}
     </div>
   );
 };
 
+/* ==================================================
+   Image Artifact
+================================================== */
+
+const ImageArtifact = ({ artifact }) => {
+  const { url, filename, prompt } = artifact;
+
+  return (
+    <div className="rounded-xl overflow-hidden border border-white/10 bg-black/20">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-black/20">
+        <div className="flex items-center gap-2">
+          <ImageIcon size={17} className="text-emerald-300" />
+          <span className="text-sm font-medium">Image</span>
+        </div>
+
+        {url && (
+          <a
+            href={url}
+            download={filename || "image.png"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="
+              flex items-center gap-1.5
+              text-xs text-white/60
+              hover:text-white
+              transition-colors
+            "
+          >
+            <Download size={13} />
+            Download
+          </a>
+        )}
+      </div>
+
+      {/* Image */}
+      {url ? (
+        <img
+          src={url}
+          alt={prompt || filename || "Generated image"}
+          loading="lazy"
+          className="w-full h-auto max-h-130 object-contain bg-black/30"
+        />
+      ) : (
+        <div className="p-4 text-xs text-white/50">Image unavailable</div>
+      )}
+
+      {/* Filename */}
+      {filename && (
+        <div className="px-4 py-2 text-xs text-white/50 font-mono truncate">
+          {filename}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ==================================================
+   Project / Code Artifact
+================================================== */
+
+const ProjectArtifact = ({ artifact }) => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [showCode, setShowCode] = useState(false);
+
+  return (
+    <div className="rounded-xl overflow-hidden border border-white/10 bg-black/20">
+      {/* Artifact Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-black/20">
+        <div className="flex items-center gap-2">
+          <Code2 size={17} className="text-emerald-300" />
+          <span className="text-sm font-medium">{artifact.type || "Project"}</span>
+        </div>
+
+        <span className="text-xs text-white/50">
+          {artifact.files?.length ?? 0} files
+        </span>
+      </div>
+
+      {/* Files */}
+      <div className="p-2 space-y-1">
+        {artifact.files?.map((file) => {
+          const isSelected = selectedFile?.name === file.name;
+
+          return (
+            <button
+              key={file.name}
+              type="button"
+              onClick={() => {
+                setSelectedFile(file);
+                setShowCode(true);
+              }}
+              className={`
+                w-full
+                flex
+                items-center
+                gap-2
+                px-3
+                py-2
+                rounded-lg
+                text-left
+                transition
+                ${
+                  isSelected
+                    ? "bg-white/10 text-white"
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
+                }
+              `}
+            >
+              <FileCode2 size={15} className="text-blue-300 shrink-0" />
+              <span className="text-xs font-mono">{file.name}</span>
+            </button>
+          );
+        })}
+
+        {!artifact.files?.length && (
+          <div className="px-3 py-2 text-xs text-white/40">No files</div>
+        )}
+      </div>
+
+      {/* Code Viewer */}
+      {showCode && selectedFile && (
+        <div className="border-t border-white/10">
+          {/* File Header */}
+          <div className="flex items-center justify-between px-4 py-2 bg-black/30">
+            <div className="flex items-center gap-2">
+              <FileCode2 size={15} className="text-blue-300" />
+              <span className="text-xs font-mono">{selectedFile.name}</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowCode(false)}
+              className="text-xs text-white/50 hover:text-white"
+            >
+              Close
+            </button>
+          </div>
+
+          {/* Code */}
+          <ArtifactCode file={selectedFile} />
+        </div>
+      )}
+    </div>
+  );
+};
 
 /* ==================================================
    Artifact Code Viewer
 ================================================== */
 
 const ArtifactCode = ({ file }) => {
-  const [copied, setCopied] =
-    useState(false);
+  const [copied, setCopied] = useState(false);
 
   const copyCode = async () => {
     try {
-      await navigator.clipboard.writeText(
-        file.content
-      );
-
+      await navigator.clipboard.writeText(file.content);
       setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error(
-        "Failed to copy:",
-        error
-      );
+      console.error("Failed to copy:", error);
     }
   };
 
   const getLanguage = (fileName) => {
-    if (fileName.endsWith(".html")) {
-      return "html";
-    }
-
-    if (fileName.endsWith(".css")) {
-      return "css";
-    }
-
-    if (fileName.endsWith(".js")) {
-      return "javascript";
-    }
-
-    if (fileName.endsWith(".jsx")) {
-      return "jsx";
-    }
-
-    if (fileName.endsWith(".ts")) {
-      return "typescript";
-    }
-
-    if (fileName.endsWith(".tsx")) {
-      return "tsx";
-    }
-
+    if (fileName.endsWith(".html")) return "html";
+    if (fileName.endsWith(".css")) return "css";
+    if (fileName.endsWith(".js")) return "javascript";
+    if (fileName.endsWith(".jsx")) return "jsx";
+    if (fileName.endsWith(".ts")) return "typescript";
+    if (fileName.endsWith(".tsx")) return "tsx";
     return "text";
   };
 
-  const language = getLanguage(
-    file.name
-  );
+  const language = getLanguage(file.name);
 
   return (
     <div className="relative">
-
       {/* Copy Button */}
-
       <button
         type="button"
         onClick={copyCode}
@@ -516,44 +464,27 @@ const ArtifactCode = ({ file }) => {
   );
 };
 
-
 /* ==================================================
    Normal Markdown Code Block
 ================================================== */
 
-const CodeBlock = ({
-  language,
-  value,
-}) => {
-  const [copied, setCopied] =
-    useState(false);
+const CodeBlock = ({ language, value }) => {
+  const [copied, setCopied] = useState(false);
 
   const copyCode = async () => {
     try {
-      await navigator.clipboard.writeText(
-        value
-      );
-
+      await navigator.clipboard.writeText(value);
       setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error(
-        "Failed to copy code:",
-        error
-      );
+      console.error("Failed to copy code:", error);
     }
   };
 
   return (
     <div className="relative my-4 rounded-xl overflow-hidden border border-white/10 bg-[#282c34]">
-
       <div className="flex items-center justify-between px-4 py-2 bg-black/30 border-b border-white/10">
-        <span className="text-xs font-mono text-white/60 uppercase">
-          {language}
-        </span>
+        <span className="text-xs font-mono text-white/60 uppercase">{language}</span>
 
         <button
           onClick={copyCode}
@@ -605,7 +536,6 @@ const CodeBlock = ({
   );
 };
 
-
 /* ==================================================
    Thinking Indicator
 ================================================== */
@@ -613,17 +543,13 @@ const CodeBlock = ({
 const ThinkingIndicator = () => {
   return (
     <div className="flex items-center gap-2 min-w-30">
-
       <div className="flex gap-1">
         <span className="w-1.5 h-1.5 rounded-full bg-white/80 animate-bounce [animation-delay:-0.3s]" />
         <span className="w-1.5 h-1.5 rounded-full bg-white/80 animate-bounce [animation-delay:-0.15s]" />
         <span className="w-1.5 h-1.5 rounded-full bg-white/80 animate-bounce" />
       </div>
 
-      <span className="text-xs text-white/70">
-        AI is thinking...
-      </span>
-
+      <span className="text-xs text-white/70">AI is thinking...</span>
     </div>
   );
 };

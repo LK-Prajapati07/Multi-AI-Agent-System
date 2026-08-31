@@ -125,10 +125,7 @@ Do NOT return raw HTML.
 ${searchContext}
 `;
 
-    // --------------------------------
-    // 4. Convert memory into LangChain
-    //    messages
-    // --------------------------------
+
     const messages = [
       new SystemMessage(systemPrompt),
     ];
@@ -174,10 +171,6 @@ ${searchContext}
 
     console.log("Chat response generated");
     console.log(response)
-
-    // --------------------------------
-    // 7. Return state
-    // --------------------------------
     return {
       ...state,
       aiResponse: response.content,

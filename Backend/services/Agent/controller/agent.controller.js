@@ -1,3 +1,4 @@
+
 import axios from "axios";
 import dotenv from "dotenv";
 
@@ -22,7 +23,7 @@ export const agent = async (req, res) => {
     // 2. Validate request
     // ==========================================
 
-    if (!prompt?.trim()) {
+    if (!prompt) {
       return res.status(400).json({
         success: false,
         message: "Prompt is required",
@@ -32,7 +33,7 @@ export const agent = async (req, res) => {
     if (!conversationId) {
       return res.status(400).json({
         success: false,
-        message: "ConversationId is required",
+        message: "Conversation ID is required",
       });
     }
 
@@ -60,7 +61,7 @@ export const agent = async (req, res) => {
     );
 
     // ==========================================
-    // 5. Run LangGraph
+    // 5. Run Graph
     // ==========================================
 
     console.log("========== GRAPH START ==========");
@@ -72,34 +73,29 @@ export const agent = async (req, res) => {
     });
 
     console.log("========== GRAPH RESULT ==========");
-    console.log("Intent:", result?.intent);
-    console.log("AI Response:", result?.aiResponse);
-    console.log("Artifacts:", result?.artifacts);
-    console.log("Images:", result?.images);
+    console.dir(result, { depth: null });
     console.log("==================================");
 
     // ==========================================
-    // 6. Validate AI response
+    // 6. AI Response
     // ==========================================
 
-    if (!result?.aiResponse) {
-      throw new Error(
-        result?.error || "AI response is empty"
-      );
+    const response = result?.aiResponse ?? "";
+
+    // ==========================================
+    // 7. Artifacts
+    // ==========================================
+
+    let artifacts = [];
+
+    if (Array.isArray(result?.artifacts)) {
+      artifacts = result.artifacts;
+    } else if (result?.artifacts) {
+      artifacts = [result.artifacts];
     }
 
-    const response = result.aiResponse;
-
     // ==========================================
-    // 7. Normalize artifacts
-    // ==========================================
-
-    const artifacts = Array.isArray(result?.artifacts)
-      ? result.artifacts
-      : [];
-
-    // ==========================================
-    // 8. Normalize images
+    // 8. Images
     // ==========================================
 
     const images = Array.isArray(result?.images)
@@ -107,7 +103,14 @@ export const agent = async (req, res) => {
       : [];
 
     // ==========================================
-    // 9. Save AI response to Redis
+    // 9. Sources
+    // ==========================================
+
+    const sources =
+      result?.searchResult?.results ?? [];
+
+    // ==========================================
+    // 10. Save assistant message to Redis
     // ==========================================
 
     await addMessage(
@@ -117,22 +120,69 @@ export const agent = async (req, res) => {
     );
 
     // ==========================================
-    // 10. Save AI response to Chat Service
+    // 11. Save assistant message to Chat Service
     // ==========================================
 
-    await axios.post(
-      `${process.env.CHAT_SERVICE}/save`,
-      {
-        conversationId,
-        role: "assistant",
-        content: response,
-        artifacts,
-        images,
-      }
+    const assistantPayload = {
+      conversationId,
+      role: "assistant",
+      content: response,
+      artifacts,
+      images,
+    };
+
+    console.log(
+      "========== CHAT SERVICE PAYLOAD =========="
     );
 
+    console.dir(
+      assistantPayload,
+      { depth: null }
+    );
+
+    console.log(
+      "=========================================="
+    );
+
+    try {
+      const chatResponse = await axios.post(
+        `${process.env.CHAT_SERVICE}/save`,
+        assistantPayload
+      );
+
+      console.log(
+        "CHAT SERVICE RESPONSE:",
+        chatResponse.data
+      );
+
+    } catch (chatError) {
+      console.error(
+        "========== CHAT SERVICE ERROR =========="
+      );
+
+      console.error(
+        "Status:",
+        chatError.response?.status
+      );
+
+      console.error(
+        "Data:",
+        chatError.response?.data
+      );
+
+      console.error(
+        "Message:",
+        chatError.message
+      );
+
+      console.error(
+        "========================================");
+
+      throw chatError;
+    }
+
     // ==========================================
-    // 11. Send response to frontend
+    // 12. Send response to frontend
     // ==========================================
 
     return res.status(200).json({
@@ -144,14 +194,12 @@ export const agent = async (req, res) => {
 
       images,
 
-      sources:
-        result?.searchResult?.results ?? [],
+      sources,
 
       message: "Agent Service working now",
     });
 
   } catch (error) {
-
     console.error(
       "========== AGENT ERROR =========="
     );
@@ -159,6 +207,16 @@ export const agent = async (req, res) => {
     console.error(
       "Message:",
       error.message
+    );
+
+    console.error(
+      "Status:",
+      error.response?.status
+    );
+
+    console.error(
+      "Response:",
+      error.response?.data
     );
 
     console.error(
@@ -172,12 +230,20 @@ export const agent = async (req, res) => {
 
     return res.status(500).json({
       success: false,
+
+      data: "",
+
       message:
+        error.response?.data?.message ||
         error.message ||
         "Agent service failed",
 
       artifacts: [],
+
       images: [],
+
+      sources: [],
     });
   }
 };
+

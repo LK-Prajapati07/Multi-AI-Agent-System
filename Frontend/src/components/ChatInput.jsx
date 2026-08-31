@@ -39,7 +39,7 @@ const ChatInput = () => {
     { id: "chat", icon: MessageSquare, label: "Chat" },
     { id: "coding", icon: Code2, label: "Coding" },
     { id: "ppt", icon: Presentation, label: "PPT" },
-    { id: "image", icon: ImageIcon, label: "Image" },
+    { id: "vision", icon: ImageIcon, label: "Vision" },
     { id: "pdf", icon: FileText, label: "PDF" },
     { id: "search", icon: Globe, label: "Search" },
   ];
@@ -105,6 +105,7 @@ const ChatInput = () => {
         conversationId,
         agent: selectedAgent,
       });
+      console.log(response)
 
       if (!response?.success) {
         console.error("AI response failed:", response);

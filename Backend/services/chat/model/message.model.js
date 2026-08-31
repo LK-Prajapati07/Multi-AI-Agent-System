@@ -28,7 +28,31 @@ const artifactSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    title:String,
+
+    title: {
+      type: String,
+      default: "",
+    },
+
+    url: {
+      type: String,
+      default: "",
+    },
+
+    filename: {
+      type: String,
+      default: "",
+    },
+
+    prompt: {
+      type: String,
+      default: "",
+    },
+
+    expiresIn: {
+      type: Number,
+      default: 0,
+    },
 
     files: {
       type: [fileSchema],

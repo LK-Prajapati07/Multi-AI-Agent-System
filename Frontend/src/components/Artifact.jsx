@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Code,
+  Image as ImageIcon,
   PanelRightClose,
 } from "lucide-react";
 import { useSelector } from "react-redux";
@@ -12,6 +13,40 @@ function Artifact() {
   const { artifact } = useSelector(
     (state) => state.message
   );
+
+  // Get latest artifact
+  const currentArtifact =
+    artifact?.[artifact.length - 1];
+
+  // No artifact
+  if (!currentArtifact) {
+    return (
+      <div
+        className="
+          hidden
+          lg:flex
+          h-full
+          w-75
+          shrink-0
+          flex-col
+          overflow-hidden
+          border-l
+          border-white/6
+          bg-[#0d0f14]
+        "
+      >
+        <div className="flex h-full items-center justify-center">
+          <p className="text-xs text-slate-500">
+            No artifact
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const isImage =
+    currentArtifact.type === "image" &&
+    currentArtifact.url;
 
   return (
     <div
@@ -69,6 +104,7 @@ function Artifact() {
 
           {/* Title */}
           <div className="flex min-w-0 flex-1 items-center gap-2">
+
             <div
               className="
                 flex
@@ -82,61 +118,148 @@ function Artifact() {
                 text-slate-400
               "
             >
-              <Code size={15} />
+              {isImage ? (
+                <ImageIcon size={15} />
+              ) : (
+                <Code size={15} />
+              )}
             </div>
 
             <div className="min-w-0">
+
               <div className="truncate text-[13px] font-medium text-slate-200">
-                {artifact?.[0]?.title || "Artifact"}
+                {currentArtifact.title ||
+                  currentArtifact.filename ||
+                  (isImage
+                    ? "Generated Image"
+                    : "Artifact")}
               </div>
 
               <div className="text-[10px] text-slate-500">
-                Code
+                {isImage ? "Image" : "Code"}
               </div>
+
             </div>
           </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-3">
-          <div
-            className="
-              rounded-lg
-              border
-              border-white/6
-              bg-[#111318]
-              p-3
-              transition
-              hover:border-white/10
-            "
-          >
-            <div className="flex items-center gap-2">
-              <div
-                className="
-                  flex
-                  h-8
-                  w-8
-                  items-center
-                  justify-center
-                  rounded-md
-                  bg-white/5
-                  text-slate-400
-                "
-              >
-                <Code size={15} />
+
+          {/* ======================================
+              IMAGE ARTIFACT
+          ======================================= */}
+
+          {isImage && (
+            <div
+              className="
+                overflow-hidden
+                rounded-lg
+                border
+                border-white/6
+                bg-[#111318]
+              "
+            >
+              <div className="p-2">
+
+                <img
+                  src={currentArtifact.url}
+                  alt={
+                    currentArtifact.prompt ||
+                    "Generated image"
+                  }
+                  className="
+                    block
+                    w-full
+                    h-auto
+                    rounded-md
+                    object-contain
+                  "
+                  onLoad={() => {
+                    console.log(
+                      "Image loaded:",
+                      currentArtifact.url
+                    );
+                  }}
+                  onError={() => {
+                    console.error(
+                      "Image failed:",
+                      currentArtifact.url
+                    );
+                  }}
+                />
+
               </div>
 
-              <div className="min-w-0 flex-1">
+              {/* Image Information */}
+              <div
+                className="
+                  border-t
+                  border-white/6
+                  p-3
+                "
+              >
                 <p className="truncate text-xs font-medium text-slate-300">
-                  {artifact?.[0]?.title || "Untitled Artifact"}
+                  {currentArtifact.filename ||
+                    "Generated Image"}
                 </p>
 
-                <p className="mt-0.5 text-[10px] text-slate-500">
-                  Generated code
+                <p className="mt-1 text-[10px] text-slate-500">
+                  Generated image
                 </p>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* ======================================
+              CODE ARTIFACT
+          ======================================= */}
+
+          {!isImage && (
+            <div
+              className="
+                rounded-lg
+                border
+                border-white/6
+                bg-[#111318]
+                p-3
+                transition
+                hover:border-white/10
+              "
+            >
+              <div className="flex items-center gap-2">
+
+                <div
+                  className="
+                    flex
+                    h-8
+                    w-8
+                    items-center
+                    justify-center
+                    rounded-md
+                    bg-white/5
+                    text-slate-400
+                  "
+                >
+                  <Code size={15} />
+                </div>
+
+                <div className="min-w-0 flex-1">
+
+                  <p className="truncate text-xs font-medium text-slate-300">
+                    {currentArtifact.title ||
+                      "Untitled Artifact"}
+                  </p>
+
+                  <p className="mt-0.5 text-[10px] text-slate-500">
+                    Generated code
+                  </p>
+
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

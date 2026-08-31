@@ -1,3 +1,4 @@
+
 import MessageList from "./MessageList";
 import Navbar from "./Navbar";
 import ChatInput from "./ChatInput";
@@ -24,12 +25,10 @@ const ChatArea = () => {
 
         const messages = response.data || [];
 
-        // Get all artifacts from all messages
-        const artifacts = messages.flatMap(
-          (message) => message.artifacts || []
-        );
+        // Store all messages
+        dispatch(setMessage(messages));
 
-        // Get the latest message that contains artifacts
+        // Find latest message that contains artifacts
         const latestArtifactMessage = [...messages]
           .reverse()
           .find(
@@ -38,16 +37,16 @@ const ChatArea = () => {
               message.artifacts.length > 0
           );
 
-        console.log("Messages:", messages);
-        console.log("Artifacts:", artifacts);
-        console.log("Latest Artifact Message:", latestArtifactMessage);
+        console.log(
+          "Latest Artifact Message:",
+          latestArtifactMessage
+        );
 
-        // Store messages in Redux
-        dispatch(setMessage(messages));
-
-        // Store artifacts in Redux
-        if (artifacts.length > 0) {
-          dispatch(addArtifact(artifacts));
+        // Store ONLY latest artifacts
+        if (latestArtifactMessage) {
+          dispatch(
+            addArtifact(latestArtifactMessage.artifacts)
+          );
         }
       } catch (error) {
         console.error("Failed to fetch messages:", error);
@@ -67,3 +66,4 @@ const ChatArea = () => {
 };
 
 export default ChatArea;
+
