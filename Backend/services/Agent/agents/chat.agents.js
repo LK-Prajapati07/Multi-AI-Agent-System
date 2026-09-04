@@ -9,22 +9,15 @@ import { getMemory } from "../utils/memory.js";
 
 export const chatAgent = async (state) => {
   try {
-    console.log("========== CHAT AGENT ==========");
 
     const llm = getModel("chat");
 
-    // --------------------------------
-    // 1. Get conversation history
-    // --------------------------------
     const history = await getMemory(state.conversationId);
 
     if (!Array.isArray(history)) {
       throw new Error("Conversation history must be an array");
     }
 
-    // --------------------------------
-    // 2. Build Web Search Context
-    // --------------------------------
     let searchContext = "";
 
     if (state.searchResult?.results?.length > 0) {
@@ -148,10 +141,6 @@ ${searchContext}
         );
       }
     }
-
-    // --------------------------------
-    // 5. Make sure current prompt exists
-    // --------------------------------
     const lastMessage = history.at(-1);
 
     if (
@@ -164,12 +153,10 @@ ${searchContext}
       );
     }
 
-    // --------------------------------
-    // 6. Call LLM
-    // --------------------------------
+    
     const response = await llm.invoke(messages);
 
-    console.log("Chat response generated");
+  
     console.log(response)
     return {
       ...state,

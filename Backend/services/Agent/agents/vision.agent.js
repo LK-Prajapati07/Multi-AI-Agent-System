@@ -63,7 +63,7 @@ ${state.prompt}
 
         // Generate presigned URL
         // 24 hours = 86400 seconds
-        const expiresIn = 24 * 60 * 60;
+        const expiresIn = 24*60;
 
         const downloadUrl = await getFormS3(
             filename,
