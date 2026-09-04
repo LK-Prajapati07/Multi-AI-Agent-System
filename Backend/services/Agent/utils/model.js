@@ -58,7 +58,7 @@ export function getModel(agent) {
       return chatModel;
 
     case "ppt":
-      return visionModel;
+      return chatModel;
     case 'router':
       return router
 
