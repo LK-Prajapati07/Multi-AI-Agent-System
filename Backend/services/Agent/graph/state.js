@@ -27,4 +27,5 @@ export const agentState = Annotation.Root({
   artifacts: Annotation({
     default: () => [],
   }),
+  file:Annotation()
 });
