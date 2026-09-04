@@ -3,11 +3,6 @@ import { getModel } from "../utils/model.js";
 export const codingAgent = async (state) => {
     try {
         const llm = await getModel("coding");
-
-        // ========================================
-        // 1. Intent Classification
-        // ========================================
-
         const intentRes = await llm.invoke(`
 You are an intent classifier.
 
@@ -50,10 +45,6 @@ ${state.prompt}
                 `Invalid intent returned by LLM: ${intent}`
             );
         }
-
-        // ========================================
-        // 2. Code Generation
-        // ========================================
 
         if (intent === "Code_Generation") {
 
@@ -157,11 +148,7 @@ ${state.prompt}
                 );
             }
 
-            console.log(
-                "Generated Files:",
-                data.files
-            );
-
+          
             const artifacts = [
                 {
                     id: Date.now(),
