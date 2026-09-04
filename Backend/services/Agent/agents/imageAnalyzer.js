@@ -40,13 +40,13 @@ export const imageAnalyzer = async (state) => {
 
     return {
       ...state,
-      aiResponce: res.content
+      aiResponse: res.content
     }
   } catch (error) {
     console.error(error)
     return {
       ...state,
-      aiResponce: null,
+      aiResponse: null,
       error: error.message
     }
   } finally {

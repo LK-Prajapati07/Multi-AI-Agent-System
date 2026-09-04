@@ -2,7 +2,7 @@ import { embeddings } from "./embedding.model.js";
 import dotenv from 'dotenv'
 dotenv.config()
 
-export const connectVectorDB = async (docs, collectionName) => {
+export const vector = async (docs, collectionName) => {
     try {
         return await QdrantVectorStore.fromExistingCollection(docs, embeddings, {
             url: process.env.QDRANT_URL,
