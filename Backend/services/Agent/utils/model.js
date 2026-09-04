@@ -59,8 +59,13 @@ export function getModel(agent) {
 
     case "ppt":
       return chatModel;
+
     case 'router':
       return router
+    case 'pdfRag':
+      return chatModel
+    case "imageAnalyzer":
+      return chatModel
 
     default:
       return searchModel

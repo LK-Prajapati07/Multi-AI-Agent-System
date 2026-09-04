@@ -9,19 +9,13 @@ dotenv.config();
 
 export const agent = async (req, res) => {
   try {
-    // ==========================================
-    // 1. Request data
-    // ==========================================
 
     const {
       prompt,
       conversationId,
       agent: agentType,
     } = req.body;
-
-    // ==========================================
-    // 2. Validate request
-    // ==========================================
+    const file=req.file
 
     if (!prompt) {
       return res.status(400).json({
@@ -37,9 +31,6 @@ export const agent = async (req, res) => {
       });
     }
 
-    // ==========================================
-    // 3. Save user message to Redis
-    // ==========================================
 
     await addMessage(
       conversationId,
@@ -47,9 +38,6 @@ export const agent = async (req, res) => {
       prompt
     );
 
-    // ==========================================
-    // 4. Save user message to Chat Service
-    // ==========================================
 
     await axios.post(
       `${process.env.CHAT_SERVICE}/save`,
@@ -60,9 +48,6 @@ export const agent = async (req, res) => {
       }
     );
 
-    // ==========================================
-    // 5. Run Graph
-    // ==========================================
 
     console.log("========== GRAPH START ==========");
 
@@ -70,6 +55,7 @@ export const agent = async (req, res) => {
       prompt,
       conversationId,
       agent: agentType,
+      file
     });
 
     console.log("========== GRAPH RESULT ==========");
