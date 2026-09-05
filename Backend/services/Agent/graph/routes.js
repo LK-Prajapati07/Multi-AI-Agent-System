@@ -3,25 +3,29 @@ import { getModel } from "../utils/model.js";
 
 export const routes = async (state) => {
   try {
-    if(state.agent && state.agent!=='auto'){
-      
+    if (state.agent && state.agent !== "auto") {
       return {
         ...state,
-        agent:state.agent
-      }
+        agent: state.agent,
+      };
     }
-    if(state.file.mimetype==="application/pdf"){
+
+    const mimetype = state.file?.mimetype;
+
+    if (mimetype === "application/pdf") {
       return {
         ...state,
-        agent:"pdfRag"
-      }
+        agent: "pdfRag",
+      };
     }
-     if(state.file.mimetype.startsWith==="image/"){
+
+    if (mimetype?.startsWith("image/")) {
       return {
         ...state,
-        agent:"imageAnalyzer"
-      }
+        agent: "imageAnalyzer",
+      };
     }
+
     const llm = getModel("router");
 
     const prompt = `

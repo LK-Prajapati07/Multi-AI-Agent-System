@@ -22,6 +22,7 @@
     "@langchain/langgraph": "^1.4.9",
     "@langchain/mistralai": "^1.2.0",
     "@langchain/openai": "^1.5.8",
+    "@langchain/openrouter": "^0.4.11",
     "@langchain/qdrant": "^1.0.3",
     "@langchain/tavily": "^1.2.0",
     "@langchain/textsplitters": "^1.0.1",

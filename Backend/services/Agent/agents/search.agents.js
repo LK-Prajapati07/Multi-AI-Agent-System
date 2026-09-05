@@ -5,8 +5,7 @@ export const searchAgent=async(state)=>{
         const result=await tool.invoke({
             query:state.prompt
         })
-        console.log("Dugging of code")
-        console.log(result.results[0].url)
+      
         return {
             ...state,
             searchResult:result,

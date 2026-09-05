@@ -59,7 +59,7 @@ ${state.prompt}
             "image/png"
         );
 
-        // console.log("Image uploaded successfully:", filename);
+     
 
         // Generate presigned URL
         // 24 hours = 86400 seconds
@@ -70,9 +70,7 @@ ${state.prompt}
             expiresIn
         );
 
-        // console.log("S3 URL generated successfully");
-        console.log(downloadUrl)
-
+      
         // Return state
         return {
             ...state,

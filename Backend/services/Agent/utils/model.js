@@ -4,6 +4,7 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatMistralAI } from "@langchain/mistralai";
 import { ChatGroq } from "@langchain/groq";
 import { ChatOpenAI } from "@langchain/openai";
+import { ChatOpenRouter } from "@langchain/openrouter";
 
 dotenv.config();
 
@@ -12,7 +13,12 @@ const codingModel = new OpenAI({
   apiKey: process.env.MOONSHOT_API_KEY,
   baseURL: "https://api.moonshot.ai/v1",
 });
+const openRouter= new ChatOpenRouter({
+  model: "anthropic/claude-sonnet-4.5",
+  temperature: 0,
+  apiKey:process.env.OPENROUTER_API_KEY
 
+});
 // Gemini (Vision)
 const visionModel = new ChatGoogleGenerativeAI({
   model: "gemini-3.8-flash",
@@ -46,7 +52,7 @@ export function getModel(agent) {
       return chatModel;
 
     case "coding":
-      return chatModel;
+      return openRouter;
 
     case "vision":
       return chatModel;
@@ -65,7 +71,7 @@ export function getModel(agent) {
     case 'pdfRag':
       return chatModel
     case "imageAnalyzer":
-      return chatModel
+      return openRouter
 
     default:
       return searchModel

@@ -157,7 +157,6 @@ ${searchContext}
     const response = await llm.invoke(messages);
 
   
-    console.log(response)
     return {
       ...state,
       aiResponse: response.content,

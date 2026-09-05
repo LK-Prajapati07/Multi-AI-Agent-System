@@ -7,7 +7,6 @@ export const imageAnalyzer = async (state) => {
     const llm = await getModel("imageAnalyzer")
     const imageBuffer = await fs.readFile(state.file.path)
     const base64Image = imageBuffer.toString("base64")
-
     const messages = [
       new SystemMessage(
         `You are Lalit Prajapati AI System
