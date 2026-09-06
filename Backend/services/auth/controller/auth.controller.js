@@ -84,8 +84,8 @@ export const createUser = async (req, res) => {
 
     res.cookie("session", sessionID, {
       httpOnly: true,
-      secure: false, // true in production
-      sameSite: "strict",
+      secure: true, // true in production
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
