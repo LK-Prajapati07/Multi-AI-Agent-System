@@ -255,7 +255,7 @@ AI-Assistant/
 ### Clone & Install
 
 ```powershell
-git clone <your-repository-url>
+git clone https://github.com/LK-Prajapati07/Multi-AI-Agent-System.git
 cd AI-Assistant
 ```
 
